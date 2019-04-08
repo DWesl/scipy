@@ -366,3 +366,55 @@ def test_adjoint_conjugate():
 
     assert_equal(B.dot(v), Y.dot(v))
     assert_equal(B.H.dot(v), Y.T.conj().dot(v))
+
+def test_matrix_operator_transpose():
+    X = np.array([[1j, 1j, 0], [0, 1j, 1j], [0, 0, 1j]])
+    A = interface.MatrixLinearOperator(X)
+    vec = np.array([1, 2j, 3])
+
+    assert_equal(A.T.dot(vec), X.T.dot(vec))
+    assert_equal(A.H.T.dot(vec), X.H.T.dot(vec))
+    assert_equal(A.T.H.dot(vec), X.T.H.dot(vec))
+    assert_(A.T.T is A)
+    assert_(A.T.H.H is A.T)
+    assert_(A.H.T.T is A.H)
+
+def test_sum_transpose():
+    X = np.array([[1, 1, 0], [0, 1, 1], [0, 0, 1]])
+    A = interface.aslinearoperator(X)
+    vec = np.array([1, 2, 3])
+
+    B = A + A
+    Y = X + X
+
+    assert_equal(B.T.dot(vec), Y.T.dot(vec))
+
+def test_product_transpose():
+    X = np.array([[1, 1, 0], [0, 1, 1], [0, 0, 1]])
+    A = interface.aslinearoperator(X)
+    vec = np.array([1, 2, 3])
+
+    B = A * A
+    Y = X.dot(X)
+
+    assert_equal(B.T.dot(vec), Y.T.dot(vec))
+
+def test_scaled_transpose():
+    X = np.array([[1, 1, 0], [0, 1, 1], [0, 0, 1]])
+    A = interface.aslinearoperator(X)
+    vec = np.array([1, 2, 3])
+
+    B = 5 * A
+    Y = 5 * X
+
+    assert_equal(B.T.dot(vec), Y.T.dot(vec))
+
+def test_power_transpose():
+    X = np.array([[1, 1, 0], [0, 1, 1], [0, 0, 1]])
+    A = interface.aslinearoperator(X)
+    vec = np.array([1, 2, 3])
+
+    B = A ** 3
+    Y = X.dot(X).dot(X)
+
+    assert_equal(B.T.dot(vec), Y.T.dot(vec))
