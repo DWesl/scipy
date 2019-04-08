@@ -524,6 +524,10 @@ class _SumLinearOperator(LinearOperator):
         A, B = self.args
         return A.H + B.H
 
+    def _transpose(self):
+        A, B = self.args
+        return A.T + B.T
+
 
 class _ProductLinearOperator(LinearOperator):
     def __init__(self, A, B):
@@ -550,6 +554,10 @@ class _ProductLinearOperator(LinearOperator):
         A, B = self.args
         return B.H * A.H
 
+    def _transpose(self):
+        A, B = self.args
+        return B.T * A.T
+
 
 class _ScaledLinearOperator(LinearOperator):
     def __init__(self, A, alpha):
@@ -573,6 +581,10 @@ class _ScaledLinearOperator(LinearOperator):
     def _adjoint(self):
         A, alpha = self.args
         return A.H * np.conj(alpha)
+
+    def _transpose(self):
+        A, alpha = self.args
+        return A.T * alpha
 
 
 class _PowerLinearOperator(LinearOperator):
@@ -606,12 +618,17 @@ class _PowerLinearOperator(LinearOperator):
         A, p = self.args
         return A.H ** p
 
+    def _transpose(self):
+        A, p = self.args
+        return A.T ** p
+
 
 class MatrixLinearOperator(LinearOperator):
     def __init__(self, A):
         super(MatrixLinearOperator, self).__init__(A.dtype, A.shape)
         self.A = A
         self.__adj = None
+        self.__transp = None
         self.args = (A,)
 
     def _matmat(self, X):
@@ -622,11 +639,17 @@ class MatrixLinearOperator(LinearOperator):
             self.__adj = _AdjointMatrixOperator(self)
         return self.__adj
 
+    def _transpose(self):
+        if self.__transp is None:
+            self.__transp = _TransposeMatrixOperator(self)
+        return self.__transp
+
 
 class _AdjointMatrixOperator(MatrixLinearOperator):
     def __init__(self, adjoint):
         self.A = adjoint.A.T.conj()
         self.__adjoint = adjoint
+        self.__transp = None
         self.args = (adjoint,)
         self.shape = adjoint.shape[1], adjoint.shape[0]
 
@@ -636,6 +659,22 @@ class _AdjointMatrixOperator(MatrixLinearOperator):
 
     def _adjoint(self):
         return self.__adjoint
+
+
+class _TransposeMatrixOperator(MatrixLinearOperator):
+    def __init__(self, transpose):
+        self.A = transpose.A.T
+        self.__adj = None
+        self.__transp = transpose
+        self.args = (transpose,)
+        self.shape = transpose.shape[1], transpose.shape[0]
+
+    @property
+    def dtype(self):
+        return self.__transp.dtype
+    
+    def _transpose(self):
+        return self.__transp
 
 
 class IdentityOperator(LinearOperator):
