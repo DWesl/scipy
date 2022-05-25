@@ -1,0 +1,51 @@
+name: Linux Tests
+
+on:
+  push:
+    branches:
+      - main
+      - maintenance/**
+  pull_request:
+    branches:
+      - main
+      - maintenance/**
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  cygwin:
+    name: Cygwin tests
+    runs-on: windows-latest
+    env:
+      SHELLOPTS: igncr
+      CHERE_INVOKING: 1
+      CYGWIN_NOWINPATH: 1
+    steps:
+      - uses: cygwin/cygwin-install-action@v2
+        packages: >-
+          gcc-g++ gcc-fortran liblapack-devel libmpfr-devel ccache swig libmpc-devel
+          libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
+          python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
+          python38-pytest
+      - run: git config --global core.autocrlf input
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Install Python dependencies
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          mkdir builds
+          cd builds
+          python3.8 -m pip install --upgrade pip 'setuptools<60' wheel
+          python3.8 -m pip install --upgrade numpy cython pytest pytest-xdist pybind11
+          python3.8 -m pip install --upgrade mpmath gmpy2 pythran threadpoolctl
+          python3.8 -m pip uninstall -y nose
+          cd ..
+      - name: Building SciPy
+        run: python3.8 -u runtests.py -g -j2 --build-only
+      - name: Test SciPy
+        run: |
+          python3.8 -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 2>&1 | tee runtests.log
+          python3.8 tools/validate_runtests_log.py fast < runtests.log
