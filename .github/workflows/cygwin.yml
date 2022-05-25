@@ -31,7 +31,7 @@ jobs:
             libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
             python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
             python38-pytest
-            meson ninja cmake make
+            meson ninja cmake make git
       - run: git config --global core.autocrlf input
       - uses: actions/checkout@v3
         with:
@@ -46,6 +46,9 @@ jobs:
           python3.8 -m pip install --upgrade mpmath gmpy2 pythran threadpoolctl
           python3.8 -m pip uninstall -y nose
           cd ..
+      - name: Check NumPy import
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: python3.8 -c "import numpy as np; print(np.__version__)"
       - name: Building SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: python3.8 -u runtests.py -g -j2 --build-only
