@@ -22,6 +22,7 @@ jobs:
       SHELLOPTS: igncr
       CHERE_INVOKING: 1
       CYGWIN_NOWINPATH: 1
+      PYTHONPATH: /usr/local/lib/python3.8/site-packages
     steps:
       - uses: cygwin/cygwin-install-action@v2
         with:
