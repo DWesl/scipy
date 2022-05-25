@@ -48,18 +48,12 @@ jobs:
           cd ..
       - name: Check NumPy import
         shell: bash.exe -eo pipefail -o igncr "{0}"
-        env:
-            PATH: "/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack"
-        run: python3.8 -c "import numpy as np; print(np.__version__)"
+        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -c "import numpy as np; print(np.__version__)"
       - name: Building SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
-        env:
-            PATH: "/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack"
-        run: python3.8 -u runtests.py -g -j2 --build-only
+        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -g -j2 --build-only
       - name: Testing SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
-        env:
-            PATH: "/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack"
         run: |
-          python3.8 -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 2>&1 | tee runtests.log
+          /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 2>&1 | tee runtests.log
           python3.8 tools/validate_runtests_log.py fast < runtests.log
