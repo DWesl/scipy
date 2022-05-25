@@ -1,4 +1,4 @@
-name: Linux Tests
+name: Cygwin Tests
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
           cd ..
       - name: Building SciPy
         run: python3.8 -u runtests.py -g -j2 --build-only
-      - name: Test SciPy
+      - name: Testing SciPy
         run: |
           python3.8 -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 2>&1 | tee runtests.log
           python3.8 tools/validate_runtests_log.py fast < runtests.log
