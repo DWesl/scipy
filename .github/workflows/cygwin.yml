@@ -24,12 +24,13 @@ jobs:
       CYGWIN_NOWINPATH: 1
     steps:
       - uses: cygwin/cygwin-install-action@v2
-        packages: >-
-          gcc-g++ gcc-fortran liblapack-devel libmpfr-devel ccache swig libmpc-devel
-          libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
-          python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
-          python38-pytest
-          meson ninja cmake make
+        with:
+          packages: >-
+            gcc-g++ gcc-fortran liblapack-devel libmpfr-devel ccache swig libmpc-devel
+            libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
+            python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
+            python38-pytest
+            meson ninja cmake make
       - run: git config --global core.autocrlf input
       - uses: actions/checkout@v3
         with:
