@@ -24,6 +24,10 @@ jobs:
       CYGWIN_NOWINPATH: 1
       PYTHONPATH: /usr/local/lib/python3.8/site-packages
     steps:
+      - run: git config --global core.autocrlf input
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
       - uses: cygwin/cygwin-install-action@v2
         with:
           packages: >-
@@ -32,10 +36,6 @@ jobs:
             python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
             python38-pytest
             meson ninja cmake make git
-      - run: git config --global core.autocrlf input
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
