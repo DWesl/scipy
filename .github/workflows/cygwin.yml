@@ -36,6 +36,9 @@ jobs:
             python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
             python38-pytest
             meson ninja cmake make git
+      - name: Fix git config
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
