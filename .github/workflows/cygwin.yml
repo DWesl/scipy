@@ -54,6 +54,8 @@ jobs:
         run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -c "import numpy as np; print(np.__version__)"
       - name: Building SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
+        env:
+          CPPFLAGS: -D_XOPEN_SOURCE=600
         run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -g -j2 --build-only
       - name: Testing SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
