@@ -60,5 +60,5 @@ jobs:
       - name: Testing SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 2>&1 | tee runtests.log
+          /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -vvd -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 2>&1 | tee runtests.log
           python3.8 tools/validate_runtests_log.py fast < runtests.log
