@@ -20,7 +20,7 @@ permissions:
 env:
   CCACHE_DIR: "${{ github.workspace }}/.ccache"
   INSTALLDIR: "build-install"
-  CPPFLAGS: "-D_XOPEN_SOURCE=600"
+  CPPFLAGS: "-D_XOPEN_SOURCE=700"
   SHELLOPTS: igncr
   CHERE_INVOKING: 1
   CYGWIN_NOWINPATH: 1
