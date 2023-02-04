@@ -96,6 +96,7 @@ jobs:
     - name: Setup build and install scipy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
         meson setup build -Dblas=blas -Dlapack=lapack --prefix=$(pwd)/${INSTALLDIR}
         python dev.py build -j 2 --werror
     - name: Ccache performance
@@ -105,6 +106,7 @@ jobs:
     - name: Check installation
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
         pushd tools
         python check_installation.py ${{ env.INSTALLDIR }}
         ./check_pyext_symbol_hiding.sh ../build
@@ -112,6 +114,7 @@ jobs:
     - name: Mypy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
         # Packages that are only needed for their annotations
         python -m pip install -r mypy_requirements.txt
         python -m pip install types-psutil pybind11 sphinx
@@ -119,6 +122,7 @@ jobs:
     - name: Test SciPy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
         export OMP_NUM_THREADS=2
         export SCIPY_USE_PROPACK=1
         python dev.py --no-build test -j 2 -- --durations 10 --timeout=60
