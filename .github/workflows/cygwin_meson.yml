@@ -160,11 +160,15 @@ jobs:
     - name: Create venv, install SciPy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
+        echo Creating venv
         python -m venv ../venvs/scipy-venv
+        echo Activating venv
         source ../venvs/scipy-venv/bin/activate
+        echo Configuring blas and lapack
+        meson setup build -Dblas=blas -Dlapack=lapack --prefix=$(pwd)/${INSTALLDIR}
         # Note that this uses build isolation. That's why we don't need build
         # dependencies to be installed in the venv itself.
-        meson setup build -Dblas=blas -Dlapack=lapack --prefix=$(pwd)/${INSTALLDIR}
+        echo Installing SciPy
         python -m pip install . -vv
 
     - name: Basic imports and tests
