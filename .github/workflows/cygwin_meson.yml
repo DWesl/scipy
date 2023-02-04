@@ -160,8 +160,9 @@ jobs:
     - name: Create venv, install SciPy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
+        python -V
         echo Creating venv
-        python -m venv ../venvs/scipy-venv
+        python -v -m venv ../venvs/scipy-venv
         echo Activating venv
         source ../venvs/scipy-venv/bin/activate
         echo Configuring blas and lapack
