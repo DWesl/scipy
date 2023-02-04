@@ -32,17 +32,10 @@ concurrency:
 jobs:
   test_meson:
     name: Cygwin Meson build
-    # If using act to run CI locally the github object does not exist and the usual skipping should not be enforced
-    if: "github.repository == 'scipy/scipy' || github.repository == '' || github.repository == 'DWesl/scipy'"
     runs-on: windows-latest
     strategy:
       matrix:
         python-minor-version: ['9']
-        maintenance-branch:
-          - ${{ contains(github.ref, 'maintenance/') || contains(github.base_ref, 'maintenance/') }}
-        exclude:
-          - maintenance-branch: true
-            python-version: '3.11-dev'
     env:
       PYTHONPATH: "/usr/local/lib/python3.${{ matrix.python-minor-version }}/site-packages"
 
