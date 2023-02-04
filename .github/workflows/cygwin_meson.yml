@@ -68,8 +68,8 @@ jobs:
           meson ninja cmake make git
 
     - name: Fix git config
-        shell: bash.exe -eo pipefail -o igncr "{0}"
-        run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
 
     - name: Install Python packages
       shell: bash.exe -eo pipefail -o igncr "{0}"
