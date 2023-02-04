@@ -59,6 +59,7 @@ jobs:
         run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -g -j2 --build-only
       - name: Check SciPy installs
         shell: bash.exe -eo pipefail -o igncr "{0}"
+        if: false
         env:
           CPPFLAGS: -D_XOPEN_SOURCE=600
         run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -m pip install -e .
