@@ -45,7 +45,7 @@ jobs:
           mkdir builds
           cd builds
           python3.8 -m pip install --upgrade pip 'setuptools<60' wheel
-          python3.8 -m pip install --upgrade numpy cython pytest pytest-xdist pybind11
+          python3.8 -m pip install --upgrade numpy cython pytest pytest-xdist pytest-timeout pybind11
           python3.8 -m pip install --upgrade mpmath gmpy2 pythran threadpoolctl pooch
           python3.8 -m pip uninstall -y nose
           cd ..
