@@ -140,22 +140,22 @@ jobs:
         submodules: recursive
 
     - uses: cygwin/cygwin-install-action@v3
-        with:
-          packages: >-
-            gcc-g++ gcc-fortran liblapack-devel libopenblas libmpfr-devel ccache swig libmpc-devel
-            libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
-            python3${{ matrix.python-minor-version }}-devel
-            python3${{ matrix.python-minor-version }}-pip
-            python3${{ matrix.python-minor-version }}-setuptools
-            python3${{ matrix.python-minor-version }}-wheel
-            python3${{ matrix.python-minor-version }}-numpy
-            python3${{ matrix.python-minor-version }}-cython
-            python3${{ matrix.python-minor-version }}-pytest
-            meson ninja cmake make git
+      with:
+        packages: >-
+          gcc-g++ gcc-fortran liblapack-devel libopenblas libmpfr-devel ccache swig libmpc-devel
+          libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
+          python3${{ matrix.python-minor-version }}-devel
+          python3${{ matrix.python-minor-version }}-pip
+          python3${{ matrix.python-minor-version }}-setuptools
+          python3${{ matrix.python-minor-version }}-wheel
+          python3${{ matrix.python-minor-version }}-numpy
+          python3${{ matrix.python-minor-version }}-cython
+          python3${{ matrix.python-minor-version }}-pytest
+          meson ninja cmake make git
 
     - name: Fix git config
-        shell: bash.exe -eo pipefail -o igncr "{0}"
-        run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
 
     - name: Create venv, install SciPy
       run: |
