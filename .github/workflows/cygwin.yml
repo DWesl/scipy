@@ -1,0 +1,69 @@
+name: Cygwin Tests
+
+on:
+  push:
+    branches:
+      - main
+      - maintenance/**
+  pull_request:
+    branches:
+      - main
+      - maintenance/**
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  cygwin:
+    name: Cygwin tests
+    runs-on: windows-latest
+    env:
+      SHELLOPTS: igncr
+      CHERE_INVOKING: 1
+      CYGWIN_NOWINPATH: 1
+      PYTHONPATH: /usr/local/lib/python3.8/site-packages
+    steps:
+      - run: git config --global core.autocrlf input
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - uses: cygwin/cygwin-install-action@v2
+        with:
+          packages: >-
+            gcc-g++ gcc-fortran liblapack-devel libopenblas libmpfr-devel ccache swig libmpc-devel
+            libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
+            python38-devel python38-pip python38-setuptools python38-wheel python38-numpy python38-cython
+            python38-pytest
+            meson ninja cmake make git
+      - name: Fix git config
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
+      - name: Install Python dependencies
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          mkdir builds
+          cd builds
+          python3.8 -m pip install --upgrade pip 'setuptools<60' wheel
+          python3.8 -m pip install --upgrade numpy cython pytest pytest-xdist pybind11
+          python3.8 -m pip install --upgrade mpmath gmpy2 pythran threadpoolctl pooch
+          python3.8 -m pip uninstall -y nose
+          cd ..
+      - name: Check NumPy import
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -c "import numpy as np; print(np.__version__)"
+      - name: Building SciPy
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        env:
+          CPPFLAGS: -D_XOPEN_SOURCE=600
+        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -g -j2 --build-only
+      - name: Check SciPy installs
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        env:
+          CPPFLAGS: -D_XOPEN_SOURCE=600
+        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -m pip install -e .
+      - name: Testing SciPy
+        shell: bash.exe -eo pipefail -o igncr "{0}"
+        run: |
+          /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.8 -u runtests.py -n -g -j2 -m fast -- -rfEX --durations=10 --timeout=60 2>&1 | tee runtests.log
+          python3.8 tools/validate_runtests_log.py fast < runtests.log
