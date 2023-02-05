@@ -111,14 +111,6 @@ jobs:
         python check_installation.py ${{ env.INSTALLDIR }}
         ./check_pyext_symbol_hiding.sh ../build
         popd
-    - name: Mypy
-      shell: bash.exe -eo pipefail -o igncr "{0}"
-      run: |
-        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
-        # Packages that are only needed for their annotations
-        python -m pip install -r mypy_requirements.txt
-        python -m pip install types-psutil pybind11 sphinx
-        python -u dev.py mypy
     - name: Test SciPy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
