@@ -436,6 +436,13 @@ class Build(Task):
                 raise RuntimeError("Can't build into non-empty directory "
                                    f"'{build_dir.absolute()}'")
 
+        if sys.platform == "cygwin":
+            # Cygwin only has netlib lapack, but can link against
+            # OpenBLAS rather than netlib blas at runtime.  There is
+            # no libopenblas-devel to enable linking against
+            # openblas-specific functions or OpenBLAS Lapack
+            cmd.extend(["-Dlapack=lapack", "-Dblas=blas"])
+
         build_options_file = (
             build_dir / "meson-info" / "intro-buildoptions.json")
         if build_options_file.exists():
