@@ -118,7 +118,7 @@ jobs:
         pushd build-install
         export PYTHONPATH="$(pwd)/lib/python3.${{ matrix.python-minor-version }}/site-packages/"
         ls ${PYTHONPATH} ${PYTHONPATH}/scipy/*
-        python -vvv -d "import scipy"
+        python -vvv -d -c "import scipy"
         popd
 
     - name: Test SciPy
