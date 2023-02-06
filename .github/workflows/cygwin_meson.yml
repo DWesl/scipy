@@ -115,9 +115,12 @@ jobs:
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
         export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
-        pushd build
+        pushd build-install
+        export PYTHONPATH="$(pwd)/lib/python3.${{ matrix.python-minor-version }}/site-packages/"
+        ls ${PYTHONPATH} ${PYTHONPATH}/scipy/*
         python -vvv -d "import scipy"
         popd
+
     - name: Test SciPy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
