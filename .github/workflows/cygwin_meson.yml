@@ -111,6 +111,13 @@ jobs:
         python check_installation.py ${{ env.INSTALLDIR }}
         ./check_pyext_symbol_hiding.sh ../build
         popd
+    - name: Check import
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
+        pushd build
+        python -vvv -d "import scipy"
+        popd
     - name: Test SciPy
       shell: bash.exe -eo pipefail -o igncr "{0}"
       run: |
