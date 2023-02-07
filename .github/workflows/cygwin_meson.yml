@@ -13,6 +13,7 @@ on:
     branches:
       - main
       - maintenance/**
+  workflow_dispatch:
 
 permissions:
    contents: read  # to fetch code (actions/checkout)
