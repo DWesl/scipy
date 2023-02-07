@@ -554,6 +554,11 @@ class Build(Task):
         with open(dirs.installed / ".gitignore", "w") as f:
             f.write("*")
 
+        if sys.platform == "cygwin":
+            rebase_cmd = ["/usr/bin/rebase", "--database", "--oblivious"]
+            rebase_cmd.extend(Path(dirs.installed).glob("**/*.dll"))
+            subprocess.check_call(rebase_cmd)
+
         print("Installation OK")
         return
 
