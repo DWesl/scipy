@@ -13,6 +13,7 @@ on:
     branches:
       - main
       - maintenance/**
+  workflow_dispatch:
 
 permissions:
    contents: read  # to fetch code (actions/checkout)
@@ -118,7 +119,7 @@ jobs:
         pushd build-install
         export PYTHONPATH="$(pwd)/lib/python3.${{ matrix.python-minor-version }}/site-packages/"
         ls ${PYTHONPATH} ${PYTHONPATH}/scipy/*
-        python -vvv -d -c "import scipy"
+        python -vvv -d -c "import scipy.linalg"
         popd
 
     - name: Test SciPy
