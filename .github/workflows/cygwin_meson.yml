@@ -1,0 +1,131 @@
+name: Cygwin Meson tests
+
+# This is a single job: Python 3.9, building with Meson, using -Werror to
+# ensure we remain at zero build warnings. Other Meson CI jobs are running
+# on https://github.com/rgommers/scipy/tree/meson
+
+on:
+  push:
+    branches:
+      - main
+      - maintenance/**
+  pull_request:
+    branches:
+      - main
+      - maintenance/**
+  workflow_dispatch:
+
+permissions:
+   contents: read  # to fetch code (actions/checkout)
+
+env:
+  CCACHE_DIR: "${{ github.workspace }}/.ccache"
+  INSTALLDIR: "build-install"
+  CPPFLAGS: "-D_XOPEN_SOURCE=700"
+  SHELLOPTS: igncr
+  CHERE_INVOKING: 1
+  CYGWIN_NOWINPATH: 1
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  test_meson:
+    name: Cygwin Meson build
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-minor-version: ['9']
+    env:
+      PYTHONPATH: "/usr/local/lib/python3.${{ matrix.python-minor-version }}/site-packages"
+
+    steps:
+    - run: git config --global core.autocrlf input
+
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - uses: cygwin/cygwin-install-action@v3
+      with:
+        packages: >-
+          gcc-g++ gcc-fortran liblapack-devel libopenblas libmpfr-devel ccache swig libmpc-devel
+          libumfpack-devel libsliplu-devel libldl-devel libklu-devel libcxsparse-devel libcholmod-devel libamd-devel
+          python3${{ matrix.python-minor-version }}-devel
+          python3${{ matrix.python-minor-version }}-pip
+          python3${{ matrix.python-minor-version }}-setuptools
+          python3${{ matrix.python-minor-version }}-wheel
+          python3${{ matrix.python-minor-version }}-numpy
+          python3${{ matrix.python-minor-version }}-cython
+          python3${{ matrix.python-minor-version }}-pytest
+          meson ninja cmake make git
+
+    - name: Fix git config
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
+
+    - name: Install Python packages
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        python -m pip install numpy cython pytest pytest-xdist pytest-timeout pybind11 mpmath gmpy2 pythran click rich-click doit pydevtool pooch
+        python -m pip install meson'>=0.64.0' ninja tomli
+    
+    - name:  Prepare compiler cache
+      id:    prep-ccache
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        mkdir -p "${CCACHE_DIR}"
+        echo "dir=$(cygpath -wa $CCACHE_DIR)" >> $GITHUB_OUTPUT
+        NOW=$(date -u +"%F-%T")
+        echo "timestamp=${NOW}" >> $GITHUB_OUTPUT
+    - name: Setup compiler cache
+      uses:  actions/cache@v3
+      id:    cache-ccache
+      # Reference: https://docs.github.com/en/actions/guides/caching-dependencies-to-speed-up-workflows#matching-a-cache-key
+      # NOTE: The caching strategy is modeled in a way that it will always have a unique cache key for each workflow run
+      # (even if the same workflow is run multiple times). The restore keys are not unique and for a partial match, they will
+      # return the most recently created cache entry, according to the GitHub Action Docs.
+      with:
+        path: ${{ steps.prep-ccache.outputs.dir }}
+        # Restores ccache from either a previous build on this branch or on main
+        key:  ${{ github.workflow }}-${{ matrix.python-version }}-ccache-linux-${{ steps.prep-ccache.outputs.timestamp }}
+        # This evaluates to `Linux Tests-3.9-ccache-linux-` which is not unique. As the CI matrix is expanded, this will
+        # need to be updated to be unique so that the cache is not restored from a different job altogether.
+        restore-keys: |
+          ${{ github.workflow }}-${{ matrix.python-version }}-ccache-linux-
+    - name: Setup build and install scipy
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
+        meson setup build -Dblas=blas -Dlapack=lapack --prefix=$(pwd)/${INSTALLDIR}
+        python dev.py build -j 2 --werror
+    - name: Ccache performance
+      shell: bash -l -eo pipefail -o igncr "{0}"
+      run: ccache -s
+
+    - name: Check installation
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
+        pushd tools
+        python check_installation.py ${{ env.INSTALLDIR }}
+        ./check_pyext_symbol_hiding.sh ../build
+        popd
+    - name: Check import
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
+        pushd build-install
+        export PYTHONPATH="$(pwd)/lib/python3.${{ matrix.python-minor-version }}/site-packages/"
+        ls ${PYTHONPATH} ${PYTHONPATH}/scipy/*
+        python -vvv -d -c "import scipy.linalg"
+        popd
+
+    - name: Test SciPy
+      shell: bash.exe -eo pipefail -o igncr "{0}"
+      run: |
+        export PATH="/usr/local/bin:/usr/bin:/bin:/usr/lib/lapack"
+        export OMP_NUM_THREADS=2
+        export SCIPY_USE_PROPACK=1
+        python dev.py --no-build test -j 2 -- --durations 10 --timeout=60
