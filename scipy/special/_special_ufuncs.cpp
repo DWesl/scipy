@@ -2,6 +2,7 @@
 #include "ufunc.h"
 
 #include <cmath>
+#include <complex>
 
 #include "sf_error.h"
 #include "special/airy.h"
