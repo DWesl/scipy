@@ -41,6 +41,14 @@ jobs:
       - name: Fix git config
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: /usr/bin/git config --system --add safe.directory /cygdrive/d/a/*/scipy
+      - name: pip cache
+        uses: actions/cache@v4
+        with:
+          path: 'C:\cygwin\home\runneradmin\.cache\pip'
+          key: ${{ runner.os }}-cygwin-pip3.9-${{ hashFiles('.github/workflows/cygwin.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-cygwin-pip3.9-
+
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
