@@ -48,7 +48,7 @@ jobs:
           cd builds
           python3.9 -m pip install --upgrade pip 'setuptools<60' wheel
           python3.9 -m pip install --upgrade numpy cython pytest pytest-xdist pytest-timeout pybind11
-          python3.9 -m pip install --upgrade mpmath gmpy2 pythran threadpoolctl pooch click
+          python3.9 -m pip install --upgrade mpmath gmpy2 pythran threadpoolctl pooch click doit
           python3.9 -m pip uninstall -y nose
           cd ..
       - name: Check NumPy import
