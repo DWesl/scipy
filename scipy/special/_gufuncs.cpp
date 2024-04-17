@@ -1,7 +1,8 @@
+#include <Python.h>
+#include "ufunc.h"
 #include "special/bessel.h"
 #include "special/legendre.h"
 #include "special/sph_harm.h"
-#include "ufunc.h"
 
 using namespace std;
 
