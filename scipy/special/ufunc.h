@@ -2,6 +2,7 @@
 #include <Python.h>
 
 #include <cassert>
+#include <complex>
 #include <cstring>
 #include <memory>
 #include <type_traits>
