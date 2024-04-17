@@ -1,12 +1,13 @@
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+
 #include <cassert>
+#include <complex>
 #include <cstring>
 #include <memory>
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
 
 #include <numpy/arrayobject.h>
 #include <numpy/npy_3kcompat.h>
