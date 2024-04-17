@@ -56,7 +56,7 @@ jobs:
         run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.9 -c "import numpy as np; print(np.__version__)"
       - name: Building SciPy
         shell: bash.exe -eo pipefail -o igncr "{0}"
-        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.9 -u dev.py -j2 --show-build-log
+        run: /usr/bin/env PATH="/bin:/usr/bin:/usr/local/bin:/usr/lib/lapack" python3.9 -u dev.py --show-build-log
       - name: Check SciPy installs
         shell: bash.exe -eo pipefail -o igncr "{0}"
         if: false
