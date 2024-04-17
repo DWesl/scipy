@@ -1,3 +1,6 @@
+#include <Python.h>
+#include "ufunc.h"
+
 #include <cmath>
 
 #include "sf_error.h"
@@ -22,7 +25,6 @@
 #include "special/trig.h"
 #include "special/wright_bessel.h"
 #include "special/zeta.h"
-#include "ufunc.h"
 
 // This is the extension module for the NumPy ufuncs in SciPy's special module. To create such a ufunc, call
 // "SpecFun_NewUFunc" with a braced list of kernel functions that will become the ufunc overloads. There are
