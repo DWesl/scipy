@@ -1,4 +1,5 @@
 #pragma once
+#include <Python.h>
 #include <iostream>
 #include <cinttypes>
 #include <tuple>

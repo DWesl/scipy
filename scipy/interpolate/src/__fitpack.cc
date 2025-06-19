@@ -1,3 +1,4 @@
+#include <Python.h>
 #include <string>
 #include <cstdint>
 #include <vector>
