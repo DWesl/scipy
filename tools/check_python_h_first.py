@@ -178,6 +178,8 @@ def find_c_cpp_files(root: str) -> list[str]:
                 if os.path.splitext(name)[1].lower() in C_CPP_EXTENSIONS
             ]
         )
+    # Check the headers before the source files
+    result.sort(key=lambda path: "h" in os.path.splitext(path)[1], reverse=True)
     return result
 
 
