@@ -82,6 +82,28 @@ All these interpolation methods rely on triangulation of the data using the
     numerical artifacts. Consider rescaling the data before interpolating
     or use the ``rescale=True`` keyword argument to `griddata`.
 
+Filling from boundary
+---------------------
+
+Griddata is designed to handle points throughout the domain of
+interest, but it is possible to use it to fill the interior from the
+boundary.  However, if there are too many points on the boundary, it
+struggles to determine a triangle to use for the interpolation,
+resulting in NaNs in the result:
+
+.. plot::
+
+   >>> import numpy as np
+   >>> from scipy.interpolate import griddata
+   >>> import matplotlib.pyplot as plt
+   >>> points = np.stack(
+   ...    [[np.arange(300), np.zeros(300)], [np.zeros(300), np.arange(300)]]
+   ... )
+   >>> values = np.concat([np.linspace(1, 0, 300), np.linspace(1, 0, 300)])
+   >>> result_points = np.mgrid[:300, :300]
+   >>> result_values = griddata(points, values, result_points)
+   >>> plt.imshow(result_values)
+   >>> plt.show()
 
 .. _tutorial-interpolate_RBF:
 
