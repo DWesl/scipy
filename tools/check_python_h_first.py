@@ -98,6 +98,7 @@ def check_python_h_included_first(name_to_check: str) -> int:
                 if "*/" in line:
                     in_comment = False
                 continue
+            line = line.split("//", 1)[0].strip()
             match = HEADER_PATTERN.match(line)
             if match:
                 includes_headers = True
@@ -112,9 +113,15 @@ def check_python_h_included_first(name_to_check: str) -> int:
                         )
                     included_python = True
                     PYTHON_INCLUDING_HEADERS.append(basename_to_check)
+                    # We just found where Python.h comes in this file
+                    break
+                elif this_header in LEAF_HEADERS:
+                    # This header is just defines
+                    # No system headers to cause problems
+                    continue
                 elif not included_python and (
                     "numpy" in this_header
-                    and this_header != "numpy/utils.h"
+                    # and this_header not in LEAF_HEADERS
                     or "python" in this_header
                 ):
                     print(
@@ -123,6 +130,11 @@ def check_python_h_included_first(name_to_check: str) -> int:
                         f"{this_header:s} on line {i:d}",
                         file=sys.stderr,
                     )
+                    included_python = True
+                    PYTHON_INCLUDING_HEADERS.append(basename_to_check)
+                    # Python.h is included by this point, no need to
+                    # keep looking
+                    break
                 elif not included_python and this_header not in LEAF_HEADERS:
                     included_non_python_header.append(i)
             elif (
@@ -141,12 +153,38 @@ def check_python_h_included_first(name_to_check: str) -> int:
     return included_python and len(included_non_python_header)
 
 
+def sort_order(path: str) -> tuple[int, str]:
+    if "include/numpy" in path:
+        # Want to process numpy/*.h first, to work out which of those
+        # include Python.h directly
+        priority = 0x00
+    elif "h" in os.path.splitext(path)[1].lower():
+        # Then other headers, which tend to include numpy/*.h
+        priority = 0x10
+    else:
+        # Source files after headers, to give the best chance of
+        # properly checking whether they include Python.h
+        priority = 0x20
+    if "common" in path:
+        priority -= 8
+    path_basename = os.path.basename(path)
+    if path_basename.startswith("npy_"):
+        priority -= 4
+    elif path_basename.startswith("npy"):
+        priority -= 3
+    elif path_basename.startswith("np"):
+        priority -= 2
+    if "config" in path_basename:
+        priority -= 1
+    return priority, path
+
+
 def process_files(file_list: list[str]) -> int:
     n_out_of_order = 0
     submodule_paths = get_submodule_paths()
     root_directory = os.path.dirname(os.path.dirname(__file__))
     for name_to_check in sorted(
-        file_list, key=lambda name: "h" not in os.path.splitext(name)[1].lower()
+        file_list, key=sort_order
     ):
         name_to_check = os.path.join(root_directory, name_to_check)
         if any(submodule_path in name_to_check for submodule_path in submodule_paths):
@@ -162,7 +200,7 @@ def find_c_cpp_files(root: str) -> list[str]:
 
     result = []
 
-    for dirpath, dirnames, filenames in os.walk("scipy"):
+    for dirpath, dirnames, filenames in os.walk(root):
         # I'm assuming other people have checked boost
         for name in ("build", ".git", "boost"):
             try:
@@ -221,6 +259,8 @@ if __name__ == "__main__":
         files = diff_files(branch_point)
     else:
         files = args.files
+        if len(files) == 1 and os.path.isdir(files[0]):
+            files = find_c_cpp_files(files[0])
 
     # See which of the headers include Python.h and add them to the list
     n_out_of_order = process_files(files)
